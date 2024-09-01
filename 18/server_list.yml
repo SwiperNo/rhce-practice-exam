@@ -1,0 +1,39 @@
+---
+- name: Create server list file
+  hosts: database
+  become: true
+
+  #My article on this https://medium.com/devops-dev/ansible-control-structures-in-jinja2-loops-e2f6769bb164
+  tasks:
+
+    - name: Create /etc/server_list.txt from template
+      ansible.builtin.template:
+        src: /home/swipe/ansible_examples/plays/18/server_list.j2
+        dest: /etc/server_list.txt
+        owner: swipe
+        group: swipe
+        mode: '0600'
+
+    - name: Set SELinux context to net_conf_t for /etc/server_list.txt persistently
+      community.general.sefcontext:
+        target: /etc/server_list.txt
+        setype: net_conf_t
+
+    - name: Apply the SELinux context changes
+      ansible.builtin.command: restorecon -v /etc/server_list.txt
+
+    - name: Verify SELinux context of /etc/server_list.txt
+      ansible.builtin.command: ls -Z /etc/server_list.txt
+      register: selinux_context
+
+    - name: Debug SELinux context
+      ansible.builtin.debug:
+        msg: "SELinux context of /etc/server_list.txt is {{ selinux_context.stdout }}"
+
+    - name: Print the contents of /etc/server_list.txt
+      ansible.builtin.command: cat /etc/server_list.txt
+      register: server_list_contents
+
+    - name: Display the server list
+      ansible.builtin.debug:
+        msg: "Contents of /etc/server_list.txt:\n{{ server_list_contents.stdout }}"

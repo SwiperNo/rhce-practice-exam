@@ -1,0 +1,10 @@
+---
+- name: Setup MySQL Server on database hosts
+  hosts: database
+  become: true
+
+  vars_files:
+    - /home/swipe/ansible_examples/plays/5/secret.yml
+
+  roles:
+    - role: sample-mysql

@@ -1,0 +1,22 @@
+---
+- name: Schedule regular tasks on proxy servers
+  hosts: proxy
+  become: true
+
+  tasks:
+  
+    - name: Ensure /var/log/time.log exists
+      ansible.builtin.file:
+        path: /var/log/time.log
+        state: touch
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Create a root cron job to log date every hour
+      ansible.builtin.cron:
+        name: "Log time to /var/log/time.log"
+        user: root
+        minute: "0"
+        hour: "*"
+        job: "date >> /var/log/time.log"

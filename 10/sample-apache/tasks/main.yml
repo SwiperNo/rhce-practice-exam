@@ -1,0 +1,32 @@
+- name: Install Apache, mod_ssl, and PHP packages
+  ansible.builtin.yum:
+    name:
+      - httpd
+      - mod_ssl
+      - php
+    state: present
+
+- name: Ensure Apache service is running and enabled on boot
+  ansible.builtin.systemd:
+    name: httpd
+    state: started
+    enabled: yes
+
+- name: Configure firewall to allow HTTP and HTTPS traffic
+  ansible.posix.firewalld:
+    service: "{{ item }}"
+    permanent: yes
+    state: enabled
+  loop:
+    - http
+    - https
+  notify: reload firewalld
+
+- name: Create /var/www/html/index.html from template
+  ansible.builtin.template:
+    src: index.html.j2
+    dest: /var/www/html/index.html
+    owner: apache
+    group: apache
+    mode: '0644'
+  notify: restart apache

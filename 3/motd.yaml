@@ -1,0 +1,22 @@
+---
+- name: Create motd for inventory specific hosts
+  hosts: all
+  gather_facts: true # This is critical
+
+
+  tasks:
+
+
+    - name: Create motd file on hosts
+      ansible.builtin.file:
+        path: /etc/motd
+        state: touch
+      become: true
+
+    - name: Create motd file on inventory hosts
+      ansible.builtin.copy:
+        content: "Welcome to {{ item }} server"
+        dest: "/etc/motd"
+      become: true
+      loop: "{{ group_names }}"
+

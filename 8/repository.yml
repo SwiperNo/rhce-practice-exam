@@ -1,0 +1,33 @@
+---
+- name: Configure MySQL YUM repository on database servers
+  hosts: database
+  become: true
+
+  tasks:
+    - name: Install GPG key for MySQL repository
+      ansible.builtin.rpm_key:
+        key: http://repo.mysql.com/RPM-GPG-KEY-mysql-2023
+        state: present
+
+    - name: Create MySQL 8.0 YUM repository file
+      ansible.builtin.yum_repository:
+        name: mysql80-community
+        description: "MySQL 8.0 YUM Repo"
+        baseurl: http://repo.mysql.com/yum/mysql-8.0-community/el/8/x86_64/
+        gpgcheck: yes
+        gpgkey: http://repo.mysql.com/RPM-GPG-KEY-mysql
+        enabled: yes
+
+    - name: Ensure the repository file is present
+      ansible.builtin.file:
+        path: /etc/yum.repos.d/mysql80-community.repo
+        state: file
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Clear YUM cache
+      ansible.builtin.yum:
+        name: '*'
+        state: latest
+        update_cache: yes

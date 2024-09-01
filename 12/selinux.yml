@@ -1,0 +1,15 @@
+---
+- name: Configure SELinux on webservers
+  hosts: webservers
+  become: true
+
+  vars:
+    # Enable the httpd_can_network_connect boolean
+    selinux_booleans:
+      - name: httpd_can_network_connect
+        state: true
+        persistent: true
+
+#ansible-galaxy role install linux-system-roles.selinux
+  roles:
+    - linux-system-roles.selinux

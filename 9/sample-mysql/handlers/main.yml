@@ -1,0 +1,11 @@
+---
+# handlers file for plays/9/sample-mysql
+- name: reload firewalld
+  ansible.builtin.systemd:
+    name: firewalld
+    state: reloaded
+
+- name: restart mysql
+  ansible.builtin.systemd:
+    name: mysqld
+    state: restarted

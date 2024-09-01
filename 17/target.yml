@@ -1,0 +1,23 @@
+---
+- name: Set and verify the default boot target to multi-user
+  hosts: webservers
+  become: true
+
+  tasks:
+    - name: Set default boot target to multi-user
+      ansible.builtin.systemd:
+        name: multi-user.target
+        enabled: true
+        state: started
+        daemon_reload: yes
+
+    - name: Ensure multi-user is the default target
+      ansible.builtin.command: systemctl set-default multi-user.target
+
+    - name: Verify the default target
+      ansible.builtin.command: systemctl get-default
+      register: default_target
+
+    - name: Debug the current default target
+      ansible.builtin.debug:
+        msg: "The current default target is {{ default_target.stdout }}"

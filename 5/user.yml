@@ -1,0 +1,41 @@
+---
+- name: Create users using vault and vars file
+  hosts: all
+  become: true
+  vars_files:
+    - /home/swipe/ansible_examples/plays/5/secret.yml
+    - /home/swipe/ansible_examples/plays/5/user_list.yml
+
+  tasks:
+
+    - name: Create users with UID starting with 1 on webservers group
+      ansible.builtin.user:
+        name: "{{ item.username }}"
+        uid: "{{ item.uid }}"
+        password: "{{ user_password | password_hash('sha512') }}"
+        group: wheel
+        shell: /bin/bash
+        state: present
+      loop: "{{ users }}"
+      when: item.uid is match("^1") and inventory_hostname in groups['webservers']
+
+    - name: Create users with UID starting with 2 on database group
+      ansible.builtin.user:
+        name: "{{ item.username }}"
+        uid: "{{ item.uid }}"
+        password: "{{ database_password | password_hash('sha512') }}"
+        group: wheel
+        shell: /bin/bash
+        state: present
+      loop: "{{ users }}"
+      when: item.uid is match("^2") and inventory_hostname in groups['database']
+
+    # - name: Ensure SSH keys are uploaded for users
+    #   ansible.builtin.copy:
+    #     content: /home/swipe/ssh_keys/{{ item.username }}.pub
+    #     dest: /home/{{ item.username }}/.ssh/authorized_keys
+    #     owner: "{{ item.username }}"
+    #     group: "{{ item.username }}"
+    #     mode: '0600'
+    #   loop: "{{ users }}"
+    #   when: "'webservers' in group_names or 'databases' in group_names"

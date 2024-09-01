@@ -1,0 +1,4 @@
+#!/bin/bash
+
+ansible all -m user -a "name=automation comment='Automation user'"
+ansible all -m copy -a "content='ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDcIuwW+n51rrXIA378S3w+q27e6QoSrIWTvxUxmupURdrnOpFJkvut31f21wR+bTagZwgL0c6qbLVc8X+tdIxBYLg/41DjGNt45yyxqaKf9gBUW6Wqjde9eyr37OvUDTfLCbZdQqtemvybgFU3xDEM53Fg0cZlhy3fSLhjBGXo/PCSX/tCfFPQUUhLUiYBYIvozSix9F71pXQ9g2mJA3Bry+Qcx/rGfaBUEJSDzYMiiGDbKHXfq81x3D+wEiI1kc2oZ/KUI5lRlqaf+rhRrR9v7A0e/W5WMbKMa39JnTzuKENZmCL2hT1rGzYgpdP3ewOHYAv/J1YUhEBR32RQB5lyAF8nbX6astGz1G1ZadvSLGCCUP39GExRjm7QAIQH5cjybmmYPKd+qcAUJlGeNIwxnVrAO7NRqKdS3cTh+vbaH69YZcuI/uWhn7ygAHIITP1uELwWlwzMmAmDWUG7ovi9rgmzwVmIQHkpzqU7hylel6fNm7/o/W+RcjRHCB26Pm0= swipe@fedora' dest=/home/automation/.ssh/authorized_keys"

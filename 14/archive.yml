@@ -1,0 +1,19 @@
+---
+- name: Create and archive a file on database hosts
+  hosts: database
+  become: true
+
+  tasks:
+    - name: Create database_list.txt with environment names
+      ansible.builtin.copy:
+        content: "dev,test,qa,prod"
+        dest: /mnt/mysql_backups/database_list.txt
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Archive the database_list.txt file
+      ansible.builtin.archive:
+        path: /mnt/mysql_backups/database_list.txt
+        dest: /mnt/mysql_backups/archive.gz
+        format: gz

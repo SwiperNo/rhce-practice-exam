@@ -1,0 +1,79 @@
+---
+- name: Create primary partition on /dev/sdb
+  community.general.parted:
+    device: /dev/sdb
+    number: 1
+    state: present
+    part_type: primary
+    part_start: 0%
+    part_end: 800MB
+    unit: MB
+
+- name: Create physical volume on /dev/sdb1
+  community.general.lvg:
+    vg: vg_database
+    pvs: /dev/sdb1
+
+- name: Create logical volume lv_mysql
+  community.general.lvol:
+    vg: vg_database
+    lv: lv_mysql
+    size: 512m
+
+- name: Create XFS filesystem on lv_mysql
+  community.general.filesystem:
+    fstype: xfs
+    dev: /dev/vg_database/lv_mysql
+
+- name: Ensure /mnt/mysql_backups directory exists
+  ansible.builtin.file:
+    path: /mnt/mysql_backups
+    state: directory
+
+- name: Mount lv_mysql to /mnt/mysql_backups
+  ansible.posix.mount:
+    path: /mnt/mysql_backups
+    src: /dev/vg_database/lv_mysql
+    fstype: xfs
+    state: mounted
+
+- name: Ensure mount is persistent
+  ansible.posix.mount:
+    path: /mnt/mysql_backups
+    src: /dev/vg_database/lv_mysql
+    fstype: xfs
+    opts: defaults
+    state: present
+
+- name: Install MySQL community server
+  ansible.builtin.yum:
+    name: mysql-community-server
+    state: present
+
+- name: Configure firewall to allow MySQL traffic
+  ansible.posix.firewalld:
+    service: mysql
+    permanent: yes
+    state: enabled
+  notify: reload firewalld
+
+- name: Set MySQL root password
+  ansible.builtin.shell: |
+    mysqladmin -u root password '{{ database_password }}'
+  when: ansible_facts['os_family'] == 'RedHat' and ansible_distribution_major_version|int == 9
+  ignore_errors: true
+
+- name: Ensure MySQL is started and enabled on boot
+  ansible.builtin.systemd:
+    name: mysqld
+    enabled: yes
+    state: started
+
+- name: Configure MySQL with custom my.cnf
+  ansible.builtin.template:
+    src: my.cnf.j2
+    dest: /etc/my.cnf
+    owner: mysql
+    group: mysql
+    mode: '0644'
+  notify: restart mysql

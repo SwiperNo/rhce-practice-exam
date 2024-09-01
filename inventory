@@ -1,0 +1,9 @@
+[proxy]
+ansible-remote.h2.local
+
+[webservers]
+ansible-remote.h3.local
+ansible-remote.h4.local
+
+[database]
+ansible-remote.h5.local

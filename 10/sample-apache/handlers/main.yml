@@ -1,0 +1,11 @@
+---
+# handlers file for plays/10/sample-apache
+- name: restart apache
+  ansible.builtin.systemd:
+    name: httpd
+    state: restarted
+
+- name: reload firewalld
+  ansible.builtin.systemd:
+    name: firewalld
+    state: reloaded

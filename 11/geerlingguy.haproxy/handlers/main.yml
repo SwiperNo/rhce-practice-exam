@@ -1,0 +1,8 @@
+---
+- name: restart haproxy
+  service: name=haproxy state=restarted
+
+- name: reload firewalld
+  ansible.builtin.systemd:
+    name: firewalld
+    state: reloaded
