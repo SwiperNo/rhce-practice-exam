@@ -1,0 +1,15 @@
+---
+- name: Configure HAProxy on proxy servers
+  hosts: proxy
+  become: true
+
+  roles:
+    - /home/swipe/ansible_examples/plays/11/geerlingguy.haproxy
+
+  tasks:
+    - name: Configure firewall to allow HTTP traffic
+      ansible.posix.firewalld:
+        service: http
+        permanent: yes
+        state: enabled
+      notify: reload firewalld
