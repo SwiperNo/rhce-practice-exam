@@ -1,0 +1,21 @@
+---
+- name: Install software packages based on group membership
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Install tcpdump and mailx (heirloom-mailx) on proxy hosts
+      ansible.builtin.dnf:
+        name:
+          - tcpdump
+          - s-nail #mailx was rmoved
+        state: present
+      when: "'proxy' in group_names"
+
+    - name: Install lsof and mailx (heirloom-mailx) on database hosts
+      ansible.builtin.dnf:
+        name:
+          - lsof
+          - s-nail
+        state: present
+      when: "'database' in group_names"
